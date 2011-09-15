@@ -1,0 +1,45 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=qt-mobility-git
+pkgver=4.8
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Cross-platform Qt APIs for mobile device functionality, Git version"
+url="https://qt.gitorious.org/qt-mobility"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(qt-git perl bluez)
+provides=qt-mobility
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull origin && git checkout $pkgver
+  else
+    git clone -b $pkgver git://gitorious.org/qt-mobility/qt-mobility.git $pkgbase
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  ./configure \
+    -prefix /usr \
+    -plugindir /usr/lib/qt/plugins \
+    -examples \
+    -demos \
+    -silent 
+#    -maemo5 \
+#    -maemo6 \
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+#  install -d ${pkgdir}/usr/imports/QtMobility
+  make INSTALL_ROOT=$pkgdir install
+}

@@ -1,0 +1,153 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgbase=qt-git
+pkgname=(qt-git qt-private-headers-git)
+pkgver=4.8
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Qt is a cross-platform application and UI framework, Git version"
+url="https://qt.gitorious.org/qt"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(
+  libtiff libpng libmng sqlite3 ca-certificates dbus libgl libxrandr
+  libxcursor libxi alsa-lib xdg-utils hicolor-icon-theme libxinerama
+  desktop-file-utils mesa
+)
+optdepends=(libmysqlclient)
+makedepends=(inputproto mysql libxfixes)
+options=(!libtool !docs)
+source=(
+  assistant.desktop
+  designer.desktop
+  linguist.desktop
+  qtconfig.desktop
+)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull origin && git checkout $pkgver
+  else
+    git clone -b $pkgver git://gitorious.org/qt/qt.git $pkgbase
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  unset QMAKESPEC
+  export QT4DIR=$srcdir/$pkgbase
+  export PATH=$QT4DIR/bin:$PATH
+  export LD_LIBRARY_PATH=$QT4DIR/lib:$LD_LIBRARY_PATH
+  export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+
+  cd $QT4DIR
+
+  sed -i "s|-O2|$CXXFLAGS|" mkspecs/common/g++.conf
+  sed -i "/^QMAKE_RPATH/s| -Wl,-rpath,||g" mkspecs/common/g++.conf
+  sed -i "/^QMAKE_LFLAGS\s/s|+=|+= $LDFLAGS|g" mkspecs/common/g++.conf
+
+  ./configure \
+    -prefix /usr \
+    -confirm-license \
+    -opensource \
+    -silent \
+    -datadir /usr/share/qt \
+    -importdir /usr/lib/qt/imports \
+    -plugindir /usr/lib/qt/plugins \
+    -sysconfdir /etc \
+    -translationdir /usr/share/qt/translations \
+    -plugin-sql-{mysql,sqlite} \
+    -system-sqlite \
+    -no-phonon \
+    -no-phonon-backend \
+    -no-rpath \
+    -openssl-linked \
+    -optimized-qmake \
+    -reduce-relocations \
+    -no-openvg \
+    -nomake demos \
+    -nomake examples \
+    -nomake docs
+
+#    -no-qt3support
+
+#    -make libs \
+#    -examplesdir /usr/share/doc/qt/examples \
+#    -demosdir /usr/share/doc/qt/demos \
+#    -docdir /usr/share/doc/qt \
+
+  make || return 1
+}
+
+#  make INSTALL_ROOT=$pkgdir install || return 1
+
+package_qt-git()
+{
+  pkgdesc="A cross-platform application and UI framework"
+  depends=(
+    libtiff libpng libmng sqlite3 ca-certificates dbus libgl libxrandr
+    libxi alsa-lib xdg-utils hicolor-icon-theme desktop-file-utils
+  )
+  optdepends=(
+    'libmysqlclient: MySQL driver'
+    'libxinerama: Xinerama support'
+    'libxcursor: Xcursor support'
+    'libxfixes: Xfixes support'
+  )
+  provides=("qt=$pkgver")
+  conflicts=(qt)
+  install=qt.install
+
+  cd $srcdir/$pkgbase
+  make INSTALL_ROOT=$pkgdir install
+
+  # install missing icons and desktop files
+  for icon in tools/linguist/linguist/images/icons/linguist-*-32.png ; do
+    size=$(echo $(basename ${icon}) | cut -d- -f2)
+    install -p -D -m644 ${icon} $pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/linguist.png
+  done
+  install -p -D -m644 src/gui/dialogs/images/qtlogo-64.png $pkgdir/usr/share/icons/hicolor/64x64/apps/qtlogo.png
+  install -p -D -m644 tools/assistant/tools/assistant/images/assistant.png $pkgdir/usr/share/icons/hicolor/32x32/apps/assistant.png
+  install -p -D -m644 tools/designer/src/designer/images/designer.png $pkgdir/usr/share/icons/hicolor/128x128/apps/designer.png
+  install -d $pkgdir/usr/share/applications
+  install -m644 $srcdir/{linguist,designer,assistant,qtconfig}.desktop $pkgdir/usr/share/applications/
+
+  # install license addition
+  install -D -m644 LGPL_EXCEPTION.txt $pkgdir/usr/share/licenses/qt/LGPL_EXCEPTION.txt
+
+  # Fix wrong path in pkgconfig files
+  find $pkgdir/usr/lib/pkgconfig -type f -name '*.pc' \
+    -exec perl -pi -e "s, -L$srcdir/?\S+,,g" {} \;
+  # Fix wrong path in prl files
+  find $pkgdir/usr/lib -type f -name '*.prl' \
+    -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' {} \;
+}
+
+package_qt-private-headers-git()
+{
+  pkgdesc="Qt private headers for development"
+#  depends=("qt-git=${pkgver}")
+  provides=("qt-private-headers=$pkgver")
+  conflicts=(qt-private-headers)
+
+  install -d $pkgdir/usr/include/{QtCore,QtDeclarative,QtGui,QtScript}
+  install -d $pkgdir/usr/src/{corelib,declarative,gui,script}
+
+  for i in QtCore QtDeclarative QtGui QtScript; do
+    cp -r $srcdir/$pkgbase/include/${i}/private/ \
+      $pkgdir/usr/include/${i}/
+  done
+
+  for i in corelib declarative gui script; do
+    cp -r $srcdir/$pkgbase/src/${i} ${pkgdir}/usr/src/
+  done
+}
+
+md5sums=('fc211414130ab2764132e7370f8e5caa'
+         '85179f5e0437514f8639957e1d8baf62'
+         'f11852b97583610f3dbb669ebc3e21bc'
+         '6b771c8a81dd90b45e8a79afa0e5bbfd')
