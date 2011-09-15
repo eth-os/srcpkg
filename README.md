@@ -1,4 +1,4 @@
-A set of Archlinux [1] source packages for [Eth-OS] [2] licensed under the
+A set of [Archlinux] [1] source packages for [Eth-OS] [2] licensed under the
 [AGPLv3] [3] with 32bit and 64bit binary packages available from [here] [4].
 
 These PKGBUILDs are not in a standard format so they can't be pushed into
