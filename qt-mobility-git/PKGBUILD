@@ -9,7 +9,7 @@ license=(LGPL)
 
 arch=(i686 x86_64)
 depends=(qt-git perl bluez)
-provides=qt-mobility
+provides=(qt-mobility)
 
 prepare()
 {
