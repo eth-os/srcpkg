@@ -16,6 +16,7 @@ depends=(
 )
 optdepends=(libmysqlclient)
 makedepends=(inputproto mysql libxfixes)
+# libgles libegl / wayland-git | cairo-gl-git libxkbcommon libwayland-git mesa-full-wayland
 options=(!libtool !docs)
 source=(
   assistant.desktop
@@ -31,6 +32,7 @@ prepare()
     cd $pkgbase && git pull origin && git checkout $pkgver
   else
     git clone -b $pkgver git://gitorious.org/qt/qt.git $pkgbase
+    git checkout $pkgver
   fi
   rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
 }
@@ -49,6 +51,9 @@ build()
   sed -i "s|-O2|$CXXFLAGS|" mkspecs/common/g++.conf
   sed -i "/^QMAKE_RPATH/s| -Wl,-rpath,||g" mkspecs/common/g++.conf
   sed -i "/^QMAKE_LFLAGS\s/s|+=|+= $LDFLAGS|g" mkspecs/common/g++.conf
+
+#  export QT_WAYLAND_GL_CONFIG=wayland_egl
+#    -qpa
 
   ./configure \
     -prefix /usr \
@@ -73,8 +78,7 @@ build()
     -nomake examples \
     -nomake docs
 
-#    -no-qt3support
-
+#    -no-qt3support \
 #    -make libs \
 #    -examplesdir /usr/share/doc/qt/examples \
 #    -demosdir /usr/share/doc/qt/demos \
@@ -105,24 +109,20 @@ package_qt-git()
   cd $srcdir/$pkgbase
   make INSTALL_ROOT=$pkgdir install
 
-  # install missing icons and desktop files
   for icon in tools/linguist/linguist/images/icons/linguist-*-32.png ; do
     size=$(echo $(basename ${icon}) | cut -d- -f2)
     install -p -D -m644 ${icon} $pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/linguist.png
   done
+
   install -p -D -m644 src/gui/dialogs/images/qtlogo-64.png $pkgdir/usr/share/icons/hicolor/64x64/apps/qtlogo.png
   install -p -D -m644 tools/assistant/tools/assistant/images/assistant.png $pkgdir/usr/share/icons/hicolor/32x32/apps/assistant.png
   install -p -D -m644 tools/designer/src/designer/images/designer.png $pkgdir/usr/share/icons/hicolor/128x128/apps/designer.png
   install -d $pkgdir/usr/share/applications
-  install -m644 $srcdir/{linguist,designer,assistant,qtconfig}.desktop $pkgdir/usr/share/applications/
-
-  # install license addition
+  install -m644 $srcdir/{linguist,designer,assistant,qtconfig}.desktop $pkgdir/usr/share/applications
   install -D -m644 LGPL_EXCEPTION.txt $pkgdir/usr/share/licenses/qt/LGPL_EXCEPTION.txt
 
-  # Fix wrong path in pkgconfig files
   find $pkgdir/usr/lib/pkgconfig -type f -name '*.pc' \
     -exec perl -pi -e "s, -L$srcdir/?\S+,,g" {} \;
-  # Fix wrong path in prl files
   find $pkgdir/usr/lib -type f -name '*.prl' \
     -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' {} \;
 }
@@ -130,7 +130,6 @@ package_qt-git()
 package_qt-private-headers-git()
 {
   pkgdesc="Qt private headers for development"
-#  depends=("qt-git=${pkgver}")
   provides=("qt-private-headers=$pkgver")
   conflicts=(qt-private-headers)
 
@@ -138,12 +137,11 @@ package_qt-private-headers-git()
   install -d $pkgdir/usr/src/{corelib,declarative,gui,script}
 
   for i in QtCore QtDeclarative QtGui QtScript; do
-    cp -r $srcdir/$pkgbase/include/${i}/private/ \
-      $pkgdir/usr/include/${i}/
+    cp -r $srcdir/$pkgbase/include/$i/private $pkgdir/usr/include/$i
   done
 
   for i in corelib declarative gui script; do
-    cp -r $srcdir/$pkgbase/src/${i} ${pkgdir}/usr/src/
+    cp -r $srcdir/$pkgbase/src/$i $pkgdir/usr/src
   done
 }
 
