@@ -1,0 +1,41 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=qt-components-desktop-git
+pkgver=1.0.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Qt Quick Desktop Components"
+url="https://qt.gitorious.org/qt-components/desktop"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(qt)
+provides=(qt-components-desktop)
+conflicts=(qt-components-desktop qt-desktop-components)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgname ]; then
+    cd $pkgname && git pull origin
+  else
+    git clone git://gitorious.org/qt-components/desktop.git $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgname $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  qmake
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+  mkdir -p $pkgdir/usr/bin
+  install -m 755 -p qmldesktopviewer/qmldesktopviewer $pkgdir/usr/bin
+  make INSTALL_ROOT=$pkgdir install
+}
+
