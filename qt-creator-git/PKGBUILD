@@ -1,0 +1,58 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=qt-creator-git
+pkgver=2.4.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Qt Creator is cross-platform integrated development environment (IDE) for Qt developers"
+url="http://www.qt-project.org"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(qt)
+makedepends=(git qt-private-headers-git)
+provides=(qtcreator)
+conflicts=(qtcreator)
+options=(docs)
+source=(qtcreator.desktop)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgname ]; then
+    cd $pkgname && git pull origin
+  else
+    git clone git://gitorious.org/qt-creator/qt-creator.git $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgname $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  mkdir -p share/doc/qtcreator
+  touch share/doc/qtcreator/qtcreator.qch
+  QT_PRIVATE_HEADERS=/usr/src qmake qtcreator.pro
+  make --quiet || return 1
+}
+
+package()
+{
+  optdepends=(
+    'qt-doc: for the integrated Qt documentation'
+    'gdb: for the debugger'
+    'cmake: for cmake project suppport'
+    'openssh-askpass: for ssh support'
+    'git: for git support'
+    'mercurial: for mercurial support'
+    'bzr: for bazaar support'
+  )
+  cd $srcdir/$pkgname
+  make INSTALL_ROOT=$pkgdir/usr install
+  install -Dm644 $srcdir/qtcreator.desktop \
+    $pkgdir/usr/share/applications/qtcreator.desktop
+  install -Dm644 $srcdir/$pkgname/LGPL_EXCEPTION.TXT \
+    $pkgdir/usr/share/licenses/qtcreator/LGPL_EXCEPTION.TXT
+}
+
+md5sums=('f1f4680b9838ff0b8f4cf11eb850d662')
