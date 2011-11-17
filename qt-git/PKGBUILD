@@ -84,7 +84,7 @@ build()
 #    -demosdir /usr/share/doc/qt/demos \
 #    -docdir /usr/share/doc/qt \
 
-  make || return 1
+  make --quiet || return 1
 }
 
 #  make INSTALL_ROOT=$pkgdir install || return 1

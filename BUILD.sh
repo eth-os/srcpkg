@@ -1,6 +1,6 @@
 #!/bin/sh
-# BUILD 20111116 markc@renta.net (AGPLv3)
-# nohup ionice -c3 nice -n19 sh BUILD > BUILD.log 2>&1 &
+# BUILD.sh 20111116 markc@renta.net (AGPLv3)
+# nohup ionice -c3 nice -n19 sh BUILD.sh > BUILD.log 2>&1 &
 
 PKGS="
   qt-git
@@ -15,7 +15,7 @@ START=$(date -u)
 
 . /etc/makepkg.conf
 
-set -x
+#set -x
 
 SRC=$SRCDEST/pkg/$DISTRO
 BIN=$PKGDEST/pkg/$DISTRO
@@ -38,6 +38,9 @@ for p in $PKGS; do
     mv $PKGDEST/*$p*.xz .
   fi
 done
+
+rm qt-private-headers-git*.xz
+mv $PKGDEST/qt-private-headers-git*.xz .
 
 rm eth-os.db.tar.gz
 repo-add eth-os.db.tar.gz *.pkg.*

@@ -28,7 +28,7 @@ build()
   prepare || return 1
   cd $srcdir/$pkgname
   qmake
-  make
+  make --quiet || return 1
 }
 
 package()

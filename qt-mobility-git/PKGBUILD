@@ -34,7 +34,7 @@ build()
     -silent 
 #    -maemo5 \
 #    -maemo6 \
-  make
+  make --quiet || return 1
 }
 
 package()
