@@ -1,0 +1,26 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=mm
+pkgver=1.4.2
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="A shared memory abstraction library"
+url="http://www.ossp.org/pkg/lib/mm/"
+license=(custom)
+
+arch=(i686 x86_64)
+options=('!libtool')
+source=(http://www.mirrorservice.org/sites/ftp.ossp.org/pkg/lib/mm/mm-$pkgver.tar.gz)
+
+build() {
+  cd $srcdir/$pkgname-$pkgver
+  ./configure --prefix=/usr
+  make || return 1
+}
+
+package() {
+  cd $srcdir/$pkgname-$pkgver
+  make DESTDIR=$pkgdir install
+  install -D -m644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}
+
+md5sums=('bdb34c6c14071364c8f69062d2e8c82b')
