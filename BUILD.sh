@@ -13,6 +13,8 @@ DISTRO=eth-os
 ARCH=x86_64
 START=$(date -u)
 
+cd /home/admin/var/src/pkg/eth-os
+
 . /etc/makepkg.conf
 
 #set -x

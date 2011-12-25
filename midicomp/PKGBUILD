@@ -13,7 +13,8 @@ source=(https://github.com/markc/midicomp/tarball/v$pkgver)
 build() {
   cd $srcdir/markc-midicomp-bb88fc3
   mkdir build && cd build
-  cmake .. CMAKE_INSTALL_PREFIX=/usr && make || return 1
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+  make || return 1
 }
 
 package() {

@@ -74,15 +74,16 @@ build()
     -optimized-qmake \
     -reduce-relocations \
     -no-openvg \
-    -nomake demos \
-    -nomake examples \
-    -nomake docs
+    -examplesdir /usr/share/doc/qt/examples \
+    -demosdir /usr/share/doc/qt/demos \
+    -docdir /usr/share/doc/qt
+
+#    -nomake demos \
+#    -nomake examples \
+#    -nomake docs
 
 #    -no-qt3support \
 #    -make libs \
-#    -examplesdir /usr/share/doc/qt/examples \
-#    -demosdir /usr/share/doc/qt/demos \
-#    -docdir /usr/share/doc/qt \
 
   make --quiet || return 1
 }
