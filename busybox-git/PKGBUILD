@@ -1,0 +1,44 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=busybox-git
+pkgver=1.20.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Utilities for rescue and embedded systems"
+url="http://www.busybox.net"
+license=(GPL)
+
+arch=(i686 x86_64)
+makedepends=(make gcc sed ncurses)
+source=(config)
+install=busybox.install
+provides=(busybox)
+conflicts=(busybox)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull
+  else
+    git clone git://git.busybox.net/busybox $pkgbase
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return
+  cd $srcdir/$pkgname
+  cp $srcdir/config .config
+  # make defconfig ; make menuconfig
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+  install -Dm755 0_lib/busybox $pkgdir/bin/busybox
+  install -Dm755 0_lib/libbusybox.so.1.20.0.git $pkgdir/usr/lib/libbusybox.so
+}
+
+md5sums=('ce21787196e1248fa861319d12ca3114')
