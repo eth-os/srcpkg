@@ -7,6 +7,8 @@ PKGS="
   qt-mobility-git
   qt-components-desktop-git
   qt-creator-git
+  razor-qt-git
+  busybox-git
 "
 
 DISTRO=eth-os
