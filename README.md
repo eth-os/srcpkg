@@ -1,10 +1,10 @@
 A set of [Archlinux] [1] source packages for [Eth-OS] [2] licensed under the
-[AGPLv3] [3] with 32bit and 64bit binary packages available from [here] [4].
+[AGPLv3] [3] with 64bit binary packages available from [here] [4].
 
 These PKGBUILDs are not in a standard format so they can't be pushed into
 the [AUR] [5]. They rely on `$SRCDEST` and `$PKGDEST` being available to
-store the source and binary packages and the `PKGBUILD` build script itself
-is not auto updated with unneccassary changes that create useless commits.
+store the source and binary packages so that the `PKGBUILD` build scripts
+are not auto updated with unneccassary changes that create useless commits.
 
 [1]: http://archlinux.org
 [2]: http://eth-os.org
