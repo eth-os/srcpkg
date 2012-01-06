@@ -1,0 +1,42 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=razor-qt-git
+pkgver=0.0.5
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="A Qt based Desktop Environment"
+url="http://razor-qt.org"
+license=(GPL)
+
+arch=(i686 x86_64)
+makedepends=(git cmake)
+depends=(qt)
+optdepends=(
+  'openbox: best supported WM'
+  'eggwm: also well supported WM'
+  '-wm: any WM should work, really'
+)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgname ]; then
+    cd $pkgname && git pull
+  else
+    git clone git://github.com/Razor-qt/razor-qt.git $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgname $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  cmake -DCMAKE_INSTALL_PREFIX=/usr
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+  make DESTDIR=$pkgdir install
+}
