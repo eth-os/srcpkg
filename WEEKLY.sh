@@ -1,12 +1,10 @@
 #!/bin/sh
-# DAILY.sh 20120111 markc@renta.net (AGPLv3)
-# nohup ionice -c3 nice -n19 sh DAILY.sh > DAILY.log 2>&1 &
+# WEEKLY.sh 20120111 markc@renta.net (AGPLv3)
+# nohup ionice -c3 nice -n19 sh WEEKLY.sh > WEEKLY.log 2>&1 &
 
 PKGS="
-  qt-git
-  qt-mobility-git
-  qt-components-desktop-git
-  qt-creator-git
+  busybox-git
+  razor-qt-git
 "
 
 DISTRO=eth-os
