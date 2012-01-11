@@ -3,7 +3,10 @@
 # nohup ionice -c3 nice -n19 sh WEEKLY.sh > WEEKLY.log 2>&1 &
 
 PKGS="
+  bluez-git
+  bluez-hcidump-git
   busybox-git
+  libbluedevil-git
   razor-qt-git
 "
 
