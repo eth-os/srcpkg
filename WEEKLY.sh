@@ -40,9 +40,6 @@ for p in $PKGS; do
   fi
 done
 
-rm qt-private-headers-git*.xz
-mv $PKGDEST/qt-private-headers-git*.xz .
-
 rm eth-os.db.tar.gz
 repo-add eth-os.db.tar.gz *.pkg.*
 
