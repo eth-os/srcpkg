@@ -1,7 +1,7 @@
 # Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
 
 pkgname=qt-creator-git
-pkgver=2.4.0
+pkgver=2.5.0
 pkgrel=$(date -u +%Y%m%d)
 pkgdesc="Qt Creator is cross-platform integrated development environment (IDE) for Qt developers"
 url="http://www.qt-project.org"
