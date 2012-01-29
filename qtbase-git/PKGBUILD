@@ -1,0 +1,66 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=qtbase-git
+pkgver=5.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Qt5 is a cross-platform application and UI framework, Git version"
+url="http://qt.gitorious.org/qt"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(
+  libtiff libpng libmng sqlite3 ca-certificates dbus libgl libxrandr
+  libxcursor libxi alsa-lib xdg-utils hicolor-icon-theme libxinerama
+  desktop-file-utils mesa libgles libegl
+)
+optdepends=(libmysqlclient)
+makedepends=(inputproto mysql libxfixes)
+# libgles libegl / wayland-git | cairo-gl-git libxkbcommon libwayland-git mesa-full-wayland
+options=(!libtool !docs)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull origin
+  else
+    git clone git://gitorious.org/qt/qtbase.git $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  unset QMAKESPEC
+  export QTVER=qt5
+  export QTDIR=$srcdir/$pkgname
+#  export QTDIR=/opt/qt/$QTVER
+  export PATH=$QTDIR/bin/:$PATH
+  export LD_LIBRARY_PATH=$QTDIR/lib/:$LD_LIBRARY_PATH
+  export PKG_CONFIG_PATH=$QTDIR/lib/pkgconfig/:$PKG_CONFIG_PATH
+  export QT_PLUGIN_PATH=$QTDIR/lib/plugins/
+
+  cd $srcdir/$pkgname
+
+  ./configure \
+    -prefix /opt/qt \
+    -confirm-license \
+    -opensource \
+    -no-multimedia \
+    -no-webkit \
+    -no-phonon \
+    -no-v8 \
+    -debug \
+    -qpa \
+    -xcb \
+    -wayland \
+    -egl \
+    -opengl es2 \
+    -nomake demos \
+    -nomake examples \
+    -nomake docs
+
+  make --quiet || return 1
+  make INSTALL_ROOT=$pkgdir install
+}

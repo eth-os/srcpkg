@@ -1,0 +1,27 @@
+post_install()
+{
+  xdg-icon-resource forceupdate --theme hicolor &> /dev/null
+  update-desktop-database -q
+
+cat << EOM
+Set these shell variables in ~/.bashrc before using Qt5...
+
+  export QTVER=qt5
+  export QTDIR=/opt/qt/$QTVER
+  export PATH=$QTDIR/bin/:$PATH
+  export LD_LIBRARY_PATH=$QTDIR/lib/:$LD_LIBRARY_PATH
+  export PKG_CONFIG_PATH=$QTDIR/lib/pkgconfig/:$PKG_CONFIG_PATH
+  export QT_PLUGIN_PATH=$QTDIR/lib/plugins/
+EOM
+
+}
+
+post_upgrade()
+{
+  post_install
+}
+
+post_remove()
+{
+  post_install
+}
