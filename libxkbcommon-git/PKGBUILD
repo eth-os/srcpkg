@@ -1,0 +1,44 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=libxkbcommon-git
+pkgver=1.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Translating evdev keycodes to keysyms, needed by Wayland."
+url="http://wayland.freedesktop.org/"
+license=(custom)
+
+arch=(i686 x86_64)
+depends=(xproto kbproto libx11 xorg-util-macros)
+makedepends=(git pkgconfig)
+provides=(libxkbcommon)
+replaces=(libxkbcommon)
+conflicts=(libxkbcommon)
+options=(!makeflags)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull origin
+  else
+    git clone git://anongit.freedesktop.org/xorg/lib/libxkbcommon $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  ./autogen.sh \
+    --prefix=/usr \
+    --sysconfdir=/etc
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+  make DESTDIR=$pkgdir install
+}
+
