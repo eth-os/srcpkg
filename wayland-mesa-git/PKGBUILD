@@ -1,0 +1,60 @@
+# Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
+
+pkgname=wayland-mesa-git
+pkgver=8.0
+pkgrel=$(date -u +%Y%m%d)
+pkgdesc="Full Mesa 3D graphics, Git version with Wayland support"
+url="http://mesa3d.org/"
+license=(LGPL)
+
+arch=(i686 x86_64)
+depends=(libdrm dri2proto glproto libxxf86vm libxdamage expat llvm wayland-git)
+makedepends=(git pkgconfig imake python2)
+optdepends=('libtxc_dxtn: S3TC support' 'mesa-demos: glxinfo and glxgears')
+provides=(mesa libgl libglapi libgles libegl ati-dri intel-dri nouveau-dri wayland-mesa-git)
+conflicts=(mesa libgl libglapi libgles libegl ati-dri intel-dri nouveau-dri mach64-dri mga-dri r128-dri savage-dri tdfx-dri unichrome-dri)
+
+prepare()
+{
+  cd $SRCDEST
+  if [ -d $pkgbase ]; then
+    cd $pkgbase && git pull origin
+  else
+    git clone git://anongit.freedesktop.org/git/mesa/mesa $pkgname
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$pkgbase $srcdir
+}
+
+build()
+{
+  prepare || return 1
+  cd $srcdir/$pkgname
+  ./autogen.sh \
+    --prefix=/usr \
+    --with-dri-driverdir=/usr/lib/xorg/modules/dri \
+    --with-dri-drivers=i915,i965,nouveau,radeon,r200 \
+    --with-gallium-drivers=r300,r600,nouveau,svga,swrast \
+    --with-egl-platforms=drm,x11,wayland \
+    --enable-gallium-llvm \
+    --enable-gallium-egl \
+    --enable-shared-dricore \
+    --enable-shared-glapi \
+    --enable-egl \
+    --enable-gles1 \
+    --enable-gles2 \
+    --enable-openvg \
+    --enable-glx-tls \
+    --enable-xcb
+
+#    --enable-texture-float
+  make
+}
+
+package()
+{
+  cd $srcdir/$pkgname
+  make DESTDIR=$pkgdir install
+  install -m755 -d $pkgdir/usr/lib/xorg/modules/extensions
+  ln -sf libglx.xorg $pkgdir/usr/lib/xorg/modules/extensions/libglx.so
+}
+
