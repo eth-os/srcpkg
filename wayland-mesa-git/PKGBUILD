@@ -11,7 +11,7 @@ arch=(i686 x86_64)
 depends=(libdrm dri2proto glproto libxxf86vm libxdamage expat llvm wayland-git)
 makedepends=(git pkgconfig imake python2)
 optdepends=('libtxc_dxtn: S3TC support' 'mesa-demos: glxinfo and glxgears')
-provides=(mesa libgl libglapi libgles libegl ati-dri intel-dri nouveau-dri wayland-mesa-git)
+provides=(mesa libgl libglapi libgles libegl ati-dri intel-dri nouveau-dri wayland-mesa-git mesa-full-wayland)
 conflicts=(mesa libgl libglapi libgles libegl ati-dri intel-dri nouveau-dri mach64-dri mga-dri r128-dri savage-dri tdfx-dri unichrome-dri)
 
 prepare()
@@ -33,7 +33,7 @@ build()
     --prefix=/usr \
     --with-dri-driverdir=/usr/lib/xorg/modules/dri \
     --with-dri-drivers=i915,i965,nouveau,radeon,r200 \
-    --with-gallium-drivers=r300,r600,nouveau,svga,swrast \
+    --with-gallium-drivers=i915,r300,r600,nouveau,svga,swrast \
     --with-egl-platforms=drm,x11,wayland \
     --enable-gallium-llvm \
     --enable-gallium-egl \
@@ -45,6 +45,16 @@ build()
     --enable-openvg \
     --enable-glx-tls \
     --enable-xcb
+
+#   --enable-osmesa \
+#   --enable-xorg \
+#   --enable-xa \
+#   --enable-xvmc \
+#   --enable-vdpau \
+#   --enable-glu \
+#   --enable-gbm \
+#   --enable-gallium-gbm \
+#   --enable-gallium-g3dvl
 
 #    --enable-texture-float
   make

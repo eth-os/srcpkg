@@ -15,6 +15,8 @@ conflicts=(qtcreator)
 options=(docs)
 source=(qtcreator.desktop)
 
+_pkgname2=qt-creator-terminalplugin
+
 prepare()
 {
   cd $SRCDEST
@@ -24,16 +26,34 @@ prepare()
     git clone git://gitorious.org/qt-creator/qt-creator.git $pkgname
   fi
   rsync -a --cvs-exclude $SRCDEST/$pkgname $srcdir
+
+  cd $SRCDEST
+  if [ -d $_pkgname2 ]; then
+    cd $_pkgname2 && git pull origin
+    git submodule foreach git pull origin master
+  else
+    git clone git://gitorious.org/qt-creator-terminalplugin/qt-creator-terminalplugin.git $_pkgname2
+    git submodule init
+    git submodule update
+  fi
+  rsync -a --cvs-exclude $SRCDEST/$_pkgname2 $srcdir
 }
 
 build()
 {
-  prepare || return 1
+#  prepare || return 1
   cd $srcdir/$pkgname
   mkdir -p share/doc/qtcreator
   touch share/doc/qtcreator/qtcreator.qch
   QT_PRIVATE_HEADERS=/usr/src qmake qtcreator.pro
   make --quiet || return 1
+
+  # now build qt-creator-terminalplugin
+  cd $srcdir/$_pkgname2
+  export QTC_SOURCE=$srcdir/$pkgname
+  export QTC_BUILD=$srcdir/$pkgname
+  mkdir build && cd build
+  qmake ../terminal.pro && make
 }
 
 package()
@@ -53,6 +73,11 @@ package()
     $pkgdir/usr/share/applications/qtcreator.desktop
   install -Dm644 $srcdir/$pkgname/LGPL_EXCEPTION.TXT \
     $pkgdir/usr/share/licenses/qtcreator/LGPL_EXCEPTION.TXT
+
+  install -Dm644 $srcdir/$pkgname/lib/qtcreator/plugins/Nokia/Terminal.pluginspec \
+    $pkgdir/usr/lib/qtcreator/plugins/Nokia/Terminal.pluginspec
+  install -Dm755 $srcdir/$pkgname/lib/qtcreator/plugins/Nokia/libTerminal.so \
+    $pkgdir/usr/lib/qtcreator/plugins/Nokia/libTerminal.so
 }
 
 md5sums=('f1f4680b9838ff0b8f4cf11eb850d662')
