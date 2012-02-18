@@ -41,7 +41,7 @@ prepare()
 
 build()
 {
-#  prepare || return 1
+  prepare || return 1
   cd $srcdir/$pkgname
   mkdir -p share/doc/qtcreator
   touch share/doc/qtcreator/qtcreator.qch
