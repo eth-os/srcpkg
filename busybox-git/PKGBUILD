@@ -41,4 +41,4 @@ package()
   install -Dm755 0_lib/libbusybox.so.1.20.0.git $pkgdir/usr/lib/libbusybox.so
 }
 
-md5sums=('ce21787196e1248fa861319d12ca3114')
+md5sums=('dcd17ad053a0d26caa5f524b63bf8b78')
