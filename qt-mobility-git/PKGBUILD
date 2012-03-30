@@ -1,7 +1,7 @@
 # Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
 
 pkgname=qt-mobility-git
-pkgver=4.8
+pkgver=4.8.1
 pkgrel=$(date -u +%Y%m%d)
 pkgdesc="Cross-platform Qt APIs for mobile device functionality, Git version"
 url="https://qt.gitorious.org/qt-mobility"

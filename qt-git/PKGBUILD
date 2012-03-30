@@ -2,7 +2,7 @@
 
 pkgbase=qt-git
 pkgname=(qt-git qt-private-headers-git)
-pkgver=4.8
+pkgver=4.8.1
 pkgrel=$(date -u +%Y%m%d)
 pkgdesc="Qt is a cross-platform application and UI framework, Git version"
 url="https://qt.gitorious.org/qt"

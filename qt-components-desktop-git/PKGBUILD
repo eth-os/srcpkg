@@ -1,7 +1,7 @@
 # Maintainer: Eth-OS @ http://eth-os.org (AGPLv3)
 
 pkgname=qt-components-desktop-git
-pkgver=1.0.0
+pkgver=4.8.1
 pkgrel=$(date -u +%Y%m%d)
 pkgdesc="Qt Quick Desktop Components"
 url="https://qt.gitorious.org/qt-components/desktop"
